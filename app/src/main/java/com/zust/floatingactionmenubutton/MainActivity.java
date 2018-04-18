@@ -32,6 +32,12 @@ public class MainActivity extends AppCompatActivity {
         TextView mTextView2=new TextView(this);
         mTextView2.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
         mTextView2.setText("222");
+        mTextView2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this,"222222",Toast.LENGTH_SHORT).show();
+            }
+        });
         TextView mTextView3=new TextView(this);
         mTextView3.setBackgroundColor(getResources().getColor(R.color.colorAccent));
         mTextView3.setText("333");

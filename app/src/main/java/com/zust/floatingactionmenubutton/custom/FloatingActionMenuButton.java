@@ -1,6 +1,7 @@
 package com.zust.floatingactionmenubutton.custom;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.app.Activity;
@@ -17,6 +18,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
 
@@ -79,7 +81,6 @@ public class FloatingActionMenuButton {
             addViewToCurrentContainer(subActionItems.get(i).view,params);
         }
         open=true;
-//        Log.e("TAG",subActionItems.size()+"");
         for (int i = 0; i < subActionItems.size(); i++) {
 
             subActionItems.get(i).view.setScaleX(0);
@@ -169,10 +170,47 @@ public class FloatingActionMenuButton {
 
 
     private void close() {
+        open=false;
+        Point center=getActionViewCenter();
+        for (int i = 0; i < subActionItems.size(); i++) {
+            final Item item=subActionItems.get(i);
+            PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat(View.TRANSLATION_X, - (item.x - center.x + item.width / 2));
+            PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat(View.TRANSLATION_Y, - (item.y - center.y + item.height / 2));
+            PropertyValuesHolder pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, -720);
+            PropertyValuesHolder pvhsX = PropertyValuesHolder.ofFloat(View.SCALE_X, 0);
+            PropertyValuesHolder pvhsY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0);
+            PropertyValuesHolder pvhA = PropertyValuesHolder.ofFloat(View.ALPHA, 0);
+
+            final ObjectAnimator animation = ObjectAnimator.ofPropertyValuesHolder(item.view, pvhX, pvhY, pvhR, pvhsX, pvhsY, pvhA);
+            animation.setDuration(500);
+            animation.setInterpolator(new AccelerateDecelerateInterpolator());
+//            animation.addListener(new SubActionItemAnimationListener(menu.getSubActionItems().get(i), ActionType.CLOSING));
+
+//            if(i == 0) {
+//                lastAnimation = animation;
+//            }
+
+            animation.setStartDelay((subActionItems.size() - i) * 20);
+            animation.start();
+            animation.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    removeViewFromCurrentContainer(item.view);
+                }
+            });
+        }
+//        for (int i = 0; i < subActionItems.size(); i++) {
+//            removeViewFromCurrentContainer(subActionItems.get(i).view);
+//        }
+    }
+
+    private void removeViewFromCurrentContainer(View view) {
+        ((ViewGroup)getActivityContentView()).removeView(view);
     }
 
 
-public static class Item {
+    public static class Item {
     public int x;
     public int y;
     public int width;
